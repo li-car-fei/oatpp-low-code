@@ -1,0 +1,46 @@
+数据总体的流程：
+
+（1） Dto 中是整个应用中使用的 数据定义
+
+（2） db 中是与数据库操作的接口，即相关的 SQL 语句定义，该类需要传入 Executor 对象进行构建
+
+（3） Executor 是在 DatabaseComponent.hpp 中定义的，是和数据库连接池对应的；即一个 Executor 应该对应一个数据库；
+
+（4） Service 中定义和数据相关的操作，调用 db 中的接口实现逻辑，但前后需要一点处理与判定操作结果是否异常；函数需要返回对应的 Dto 对象；
+
+（5） Controller 定义HTTP接口相关，包括path参数、body参数等；其需要调用 service ，并将结果封装成 response；
+
+（6） ErrorHandler 是全局的错误处理程序，在 connectionHandler->setErrorHandler 进行设置；捕获 service 中抛出的 OATPP_ASSERT_HTTP 错误进行处理；
+
+
+
+因此，当多表应用时：
+
+（1）每个表都应该有自己的 Dto；
+
+（2）应当有一个总的 db 对象，将所有表的接口集合起来，接收 Executor 进行构建；因为多个表处于一个数据库内，应当只是用一个 Executor 对象而已；
+     而如果有多个表联合的操作时，也可以另外提供接口，挂载到 db 中；
+
+（3）每个表的操作有其自己的 service、controller； 
+    随后有一个总的 MyController 管理所有Controller，并提供与路由器的对接接口; 
+    而 service 不需要总的，各自的 Controller 保留一个对象调用即可，是一个一对一对应的关系；
+    当需要有 联合多个表的 service 时，可以视为一个独立的 service 服务，调用隔离的 db 接口而已，再向上层 controller 提供服务，
+    多表相关的操作只放在对应的强关联的 service（主键的表）里即可
+
+（4）每个表共用错误处理程序 ErrorHandler，封装成统一错误抛出接口；
+
+
+
+
+
+当需要新增一个表的服务：
+
+（1）先定义好 对应的 Dto：Data-transfer-object
+
+（2）新建一个 Db 服务程序，写好 SQL 语句
+
+（3）新建一个 service，向上提供服务
+
+（4）新建一个 Controller，管理接口和服务的对应关系，并挂载到 MyController 上；
+
+（5）sql 中新增 初始化数据即可
