@@ -20,6 +20,7 @@
 - 对 oatpp++ CRUD 的改写：
 
     - 数据 DTO 有共用字段的采用类的继承方式定义
+
  ```cpp
     /**
  * 组件记录的 DTO
@@ -54,7 +55,8 @@ class ComponentTransferDto : public ComponentRecordDto {
 };
 ```
 
-    - Db 部分，每个表的SQL操作分别定义为一个类，随后挂载到一个总的 Db 类中，使用共享的数据库连接池和语句执行器excuator
+- Db 部分，每个表的SQL操作分别定义为一个类，随后挂载到一个总的 Db 类中，使用共享的数据库连接池和语句执行器excuator
+
 ```cpp
 /**
  * 总的 DB 类，管理所有的 数据相关操作类
@@ -86,21 +88,21 @@ public:
 };
 ```
 
-    - service 方面，每个表先实现好对应的服务；
+- service 方面，每个表先实现好对应的服务；
 
-        - 所有的 service，共用一个指向 Db 的共享指针；即共用一个数据库连接池，共用一套集成好的 SQL 语句接口；
+  - 所有的 service，共用一个指向 Db 的共享指针；即共用一个数据库连接池，共用一套集成好的 SQL 语句接口；
 
-        - 两个表相关的服务，且有层次关系的，如组件和子组件，则采用继承方式实现；使得组件服务可以调用子组件服务；
+  - 两个表相关的服务，且有层次关系的，如组件和子组件，则采用继承方式实现；使得组件服务可以调用子组件服务；
 
-        - 多个表相关的服务，如整个 project 相关的服务，另外新建一个 service 类，继承所需的服务对应的类实现；
+  - 多个表相关的服务，如整个 project 相关的服务，另外新建一个 service 类，继承所需的服务对应的类实现；
 
-    - controller 方面，与 service 提供的服务对应起来，定义HTTP接口的信息；
+- controller 方面，与 service 提供的服务对应起来，定义HTTP接口的信息；
 
-        - 每个 controller 都接收指向 Db 的共享指针，以传给对应的 service 成员；
+  - 每个 controller 都接收指向 Db 的共享指针，以传给对应的 service 成员；
 
-        - controller 继承自 oatpp++ 提供的对象，需要从环境中找到序列化/反序列化器objectMapper用于其初始化
+  - controller 继承自 oatpp++ 提供的对象，需要从环境中找到序列化/反序列化器objectMapper用于其初始化
 
-        - 定义一个将所有controller进行统一管理的 MyController，将所有实例（只需一个）挂载到里面，并对外提供统一的controller相关操作接口，如router配置；
+  - 定义一个将所有controller进行统一管理的 MyController，将所有实例（只需一个）挂载到里面，并对外提供统一的controller相关操作接口，如router配置；
 
 ```cpp
 /**
@@ -149,7 +151,19 @@ class MyController {
 };
 ```
 
-    - 另外运用oatpp++的文件上传接口提供图片上传，用于AI模型识别；识别后调用projectComplete的服务存储完整低代码视图信息；
+- 另外运用oatpp++的文件上传接口提供图片上传，用于AI模型识别；识别后调用projectComplete的服务存储完整低代码视图信息；
+
+```cpp
+ENDPOINT_INFO(upload) {
+    info->summary = "upload image to parse";
+   }
+ENDPOINT("POST", "/upload", upload, REQUEST(std::shared_ptr<IncomingRequest>, request)) {
+
+    oatpp::data::stream::FileOutputStream fileOutputStream(UPLOADFILEPATH);
+    request->transferBodyToStream(&fileOutputStream); // transfer body chunk by chunk
+    return createResponse(Status::CODE_200, "OK");
+}
+```
 
 
 ### 接口示例
