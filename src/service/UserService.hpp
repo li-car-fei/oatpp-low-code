@@ -6,25 +6,18 @@
 #include "dto/PageDto.hpp"
 #include "dto/StatusDto.hpp"
 
+#include "BaseService.hpp"
+
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/macro/component.hpp"
 
 #include <iostream>
 
-class UserService {
-private:
-  typedef oatpp::web::protocol::http::Status Status;
-private:
-/**
- * 不能从 server 环境中找到 数据库client了，因为有一个统一的对象 Db对象进行管理！！！
-*/
-  /* OATPP_COMPONENT(std::shared_ptr<Db>, m_database); // Inject database component */
-
-  std::shared_ptr<Db> m_database;
+class UserService : virtual public BaseService {
 
 public:
 
-  UserService(std::shared_ptr<Db> database) : m_database(database) {};
+  UserService(std::shared_ptr<Db> database) : BaseService(database) {};
 
   /**
    * user 表的实际操作函数 service

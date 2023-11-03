@@ -5,6 +5,7 @@
 #include "dto/ProjectDto.hpp"
 #include "dto/StatusDto.hpp"
 
+#include "BaseService.hpp"
 #include "ComponentService.hpp"
 
 #include "oatpp/web/protocol/http/Http.hpp"
@@ -12,15 +13,10 @@
 
 #include <iostream>
 
-class ProjectService {
-private:
-    typedef oatpp::web::protocol::http::Status Status;
-private:
-    std::shared_ptr<Db> m_database = nullptr;
+class ProjectService : virtual public BaseService {
 
 public:
-    ProjectService() = default;
-    ProjectService(std::shared_ptr<Db> database) : m_database(database) {};
+    ProjectService(std::shared_ptr<Db> database) : BaseService(database) {};
 
     /**
      * Project 表相关的 操作函数 service
@@ -62,13 +58,13 @@ public:
  * 这个类应当 继承于 Component、ChildComponent，可以直接调用两者的函数
 */
 class ProjectCompleteService : public ProjectService, ComponentService {
-private:
-    typedef oatpp::web::protocol::http::Status Status;
-private:
-    std::shared_ptr<Db> m_database;
 
 public:
-    ProjectCompleteService(std::shared_ptr<Db> database) : m_database(database), ProjectService(database), ComponentService(database) {};
+    /**
+     * 虚继承中，需要由最上层派生类调用最下层基类的构造函数
+     * (普通继承则不用，调用直接继承的基类的构造即可)
+    */
+    ProjectCompleteService(std::shared_ptr<Db> database) : BaseService(database), ProjectService(database), ComponentService(database) {};
 
 
     /**

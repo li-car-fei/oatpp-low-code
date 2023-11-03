@@ -88,13 +88,62 @@ public:
 };
 ```
 
-- service 方面，每个表先实现好对应的服务；
+- service 方面；
 
-  - 所有的 service，共用一个指向 Db 的共享指针；即共用一个数据库连接池，共用一套集成好的 SQL 语句接口；
+  - 定义一个基础服务类，存储 Db 与所有服务共用的成员
+
+  - 每个表的服务定义一个service，虚继承基础服务类（保证后续派生类只有一个Db连接）；提供每个表自己独立的服务
+
+  - 所有的 service，都继承自基础服务类；即共用一个数据库连接池，共用一套集成好的 SQL 语句接口；
 
   - 两个表相关的服务，且有层次关系的，如组件和子组件，则采用继承方式实现；使得组件服务可以调用子组件服务；
 
   - 多个表相关的服务，如整个 project 相关的服务，另外新建一个 service 类，继承所需的服务对应的类实现；
+
+  - 只需直接继承 BaseService 的类是虚继承即可，就可保证所有类中只有一份 Db；
+
+```cpp
+/**
+ * BaseService
+ * 声明 Status 后续子类都用于HTTP状态的码的设定
+ * 保存 std::shared_ptr<Db> m_database，用于数据库相关操作
+ * 直接继承BaseService的类需要是 virtual 继承，则可保证所有相关Service类中都只有一份Db
+*/
+class BaseService {
+    /* protected ，子类可以访问到，外界不可以访问 */
+    protected:
+        typedef oatpp::web::protocol::http::Status Status;
+        std::shared_ptr<Db> m_database;
+    
+    public:
+        BaseService(std::shared_ptr<Db> database) : m_database(database) {};
+};
+
+/* 子组件相关服务 */
+class ChildComponentService : virtual public BaseService {
+
+public:
+    ChildComponentService(std::shared_ptr<Db> database) : BaseService(database) {};
+
+    /* others... */
+};
+
+/* 组件相关服务 */
+class ComponentService : public ChildComponentService {
+
+public:
+    /**
+     * 虚继承中，需要由最上层派生类调用基类的构造函数
+     * (普通继承则不用，调用直接继承的基类的构造即可)
+    */
+    ComponentService(std::shared_ptr<Db> database) : 
+        BaseService(database), 
+        ChildComponentService(database) {};
+
+    /* others... */
+};
+
+```
 
 - controller 方面，与 service 提供的服务对应起来，定义HTTP接口的信息；
 

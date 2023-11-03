@@ -22,6 +22,7 @@ add_library(${project_name}-lib
         src/dto/UserDto.hpp
         src/dto/ProjectDto.hpp
         src/dto/ComponentRecordDto.hpp
+        src/service/BaseService.hpp
         src/service/UserService.cpp
         src/service/UserService.hpp
         src/service/ProjectService.cpp

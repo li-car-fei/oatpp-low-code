@@ -5,6 +5,8 @@
 #include "dto/ComponentRecordDto.hpp"
 #include "dto/StatusDto.hpp"
 
+#include "BaseService.hpp"
+
 #include "oatpp/web/protocol/http/Http.hpp"
 #include "oatpp/core/macro/component.hpp"
 
@@ -12,15 +14,10 @@
 /**
  * child component 子组件相关的服务
 */
-class ChildComponentService {
-private:
-    typedef oatpp::web::protocol::http::Status Status;
-private:
-    std::shared_ptr<Db> m_database = nullptr;
+class ChildComponentService : virtual public BaseService {
 
 public:
-    ChildComponentService() = default;
-    ChildComponentService(std::shared_ptr<Db> database) : m_database(database) {};
+    ChildComponentService(std::shared_ptr<Db> database) : BaseService(database) {};
 
     /**
      * child component 子组件相关的服务
@@ -60,16 +57,16 @@ public:
 
 /**
  * component 组件相关的服务
+ * ChildComponentService 是对 BaseService 的虚继承，因此此处正常继承即可
 */
 class ComponentService : public ChildComponentService {
-private:
-    typedef oatpp::web::protocol::http::Status Status;
-private:
-    std::shared_ptr<Db> m_database = nullptr;
 
 public:
-    ComponentService() = default;
-    ComponentService(std::shared_ptr<Db> database) : m_database(database), ChildComponentService(database) {};
+    /**
+     * 虚继承中，需要由最上层派生类调用最下层基类的构造函数
+     * (普通继承则不用，调用直接继承的基类的构造即可)
+    */
+    ComponentService(std::shared_ptr<Db> database) : BaseService(database), ChildComponentService(database) {};
 
     /**
      * ComponentRecord 表相关的服务操作
