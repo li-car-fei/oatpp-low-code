@@ -18,9 +18,9 @@ oatpp::Object<ComponentTransferDto> ComponentService::createComponent(const oatp
 * 根据 record_id 修改组件信息，不传入子组件的信息
 * 返回 要给完整组件信息记录，填充了空子组件列表的
 */
-oatpp::Object<ComponentTransferDto> ComponentService::updateComponent(const oatpp::Object<ComponentRecordDto>& dto) {
+oatpp::Object<ComponentTransferDto> ComponentService::updateComponent(const oatpp::Object<ComponentRecordDto>& dto, const oatpp::provider::ResourceHandle<oatpp::orm::Connection>& connection) {
 
-    auto dbResult = m_database->componentDb->updateComponent(dto);
+    auto dbResult = m_database->componentDb->updateComponent(dto, connection);
     OATPP_ASSERT_HTTP(dbResult->isSuccess(), Status::CODE_500, dbResult->getErrorMessage());
 
     return getComponentById((v_int32) dto->record_id, dbResult->getConnection());

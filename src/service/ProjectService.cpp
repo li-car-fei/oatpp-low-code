@@ -89,13 +89,9 @@ oatpp::Object<StatusDto> ProjectCompleteService::deleteProjectById(const oatpp::
 * 根据 project id 获得 完整的 project 信息
 * 完全展开 组件与子组件
 */
-oatpp::Object<ProjectCompleteDto> ProjectCompleteService::getProjectCompleteById(const oatpp::Int32& id) {
+oatpp::Object<ProjectCompleteDto> ProjectCompleteService::getProjectCompleteById(const oatpp::Int32& id, const oatpp::provider::ResourceHandle<oatpp::orm::Connection>& connection) {
   /* 先获取project基础信息 */
-  auto project_base_info = ProjectService::getProjectById(id);
-
-  /* 读个读取请求共用一个 connection 即可 */
-  auto connection = m_database->projectDb->getConnection();
-
+  auto project_base_info = ProjectService::getProjectById(id, connection);
 
   auto project_complete_result = ProjectCompleteDto::createShared();
   /* 基础信息一个一个拷贝 */
@@ -125,6 +121,9 @@ oatpp::Object<ProjectCompleteDto> ProjectCompleteService::saveProjectCompolete(c
   old_project_info->project_title = project->project_title;
   ProjectService::updateProject(old_project_info);
 
+  /* 重用的 connection */
+  auto connection =  m_database->projectDb->getConnection();
+
   /* 遍历更新组件 vector */
   for(auto& componentTransferDto : *project->components) {
     /* 组件基础信息更新 */
@@ -144,11 +143,11 @@ oatpp::Object<ProjectCompleteDto> ProjectCompleteService::saveProjectCompolete(c
     component_base_info->label2 = componentTransferDto->label2;
     component_base_info->backgroundColor = componentTransferDto->backgroundColor;
 
-    ComponentService::updateComponent(component_base_info);
+    ComponentService::updateComponent(component_base_info, connection);
 
     /* 子组件信息更新 */
     for(auto& childComponnetTransferDto : *componentTransferDto->childs) {
-      ComponentService::ChildComponentService::updateChildComponentById(childComponnetTransferDto);
+      ComponentService::ChildComponentService::updateChildComponentById(childComponnetTransferDto, connection);
     }
   }
 
@@ -175,10 +174,12 @@ oatpp::Object<StatusDto> ProjectCompleteService::projectComponentsMove(const oat
     OATPP_ASSERT_HTTP(false, Status::CODE_500, " components length dose not match ");
   }
   
+  /* 重用 connection */
+  auto connection = m_database->componentDb->getConnection();
 
   for (size_t i = 0; i < length; i++)
   {
-    auto dbResult = m_database->componentDb->updateComponentIndexByRecordId(moveData->component_indexs->at(i), moveData->component_record_ids->at(i));
+    auto dbResult = m_database->componentDb->updateComponentIndexByRecordId(moveData->component_indexs->at(i), moveData->component_record_ids->at(i), connection);
     OATPP_ASSERT_HTTP(dbResult->isSuccess(), Status::CODE_500, dbResult->getErrorMessage());
   }
 

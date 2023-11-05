@@ -87,7 +87,7 @@ public:
     * 根据 record_id 修改组件信息，不传入子组件的信息
     * 返回 要给完整组件信息记录，填充了空子组件列表的
    */
-   oatpp::Object<ComponentTransferDto> updateComponent(const oatpp::Object<ComponentRecordDto>& dto);
+   oatpp::Object<ComponentTransferDto> updateComponent(const oatpp::Object<ComponentRecordDto>& dto, const oatpp::provider::ResourceHandle<oatpp::orm::Connection>& connection = nullptr);
 
    /**
     * 根据 record_id 删除组件

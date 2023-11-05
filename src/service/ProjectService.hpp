@@ -78,7 +78,7 @@ public:
      * 根据 project id 获得 完整的 project 信息
      * 完全展开 组件与子组件
     */
-   oatpp::Object<ProjectCompleteDto> getProjectCompleteById(const oatpp::Int32& id);
+   oatpp::Object<ProjectCompleteDto> getProjectCompleteById(const oatpp::Int32& id, const oatpp::provider::ResourceHandle<oatpp::orm::Connection>& connection = nullptr);
 
     
     /**
