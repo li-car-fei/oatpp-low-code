@@ -13,6 +13,7 @@ add_library(${project_name}-lib
         src/controller/ComponentController.hpp
         src/controller/UploadController.hpp
         src/controller/MyController.hpp
+        src/controller/AuthController.hpp
         src/db/UserDb.hpp
         src/db/ProjectDb.hpp
         src/db/ComponentDb.hpp
@@ -22,7 +23,10 @@ add_library(${project_name}-lib
         src/dto/UserDto.hpp
         src/dto/ProjectDto.hpp
         src/dto/ComponentRecordDto.hpp
+        src/dto/AuthDto.hpp
         src/service/BaseService.hpp
+        src/service/AuthService.cpp
+        src/service/AuthService.hpp
         src/service/UserService.cpp
         src/service/UserService.hpp
         src/service/ProjectService.cpp
@@ -33,7 +37,13 @@ add_library(${project_name}-lib
         src/DatabaseComponent.hpp
         src/SwaggerComponent.hpp
         src/ErrorHandler.cpp
-        src/ErrorHandler.hpp)
+        src/ErrorHandler.hpp
+        src/auth/JWT.hpp
+        src/auth/JWT.cpp
+        src/auth/AuthHandler.hpp
+        src/auth/AuthHandler.cpp
+        src/interceptor/AuthInterceptor.hpp
+        src/interceptor/AuthInterceptor.cpp)
 
 # link libs
 
@@ -56,6 +66,11 @@ find_package(unofficial-sqlite3 CONFIG REQUIRED)
 find_package(oatpp          1.3.0 REQUIRED)
 find_package(oatpp-swagger  1.3.0 REQUIRED)
 find_package(oatpp-sqlite   1.3.0 REQUIRED)
+find_package(oatpp-openssl      1.3.0 REQUIRED)
+find_package(OpenSSL   REQUIRED)
+
+# https://github.com/microsoft/vcpkg/issues/10626
+# find_package(jwt-cpp REQUIRED PATHS E:/ljh/software/vcpkg/packages/jwt-cpp_x64-windows/include/jwt-cpp)
 
 target_link_libraries(${project_name}-lib
         PUBLIC unofficial::sqlite3::sqlite3
@@ -63,6 +78,12 @@ target_link_libraries(${project_name}-lib
         PUBLIC oatpp::oatpp
         PUBLIC oatpp::oatpp-swagger
         PUBLIC oatpp::oatpp-sqlite
+
+        # third-party
+        # PUBLIC jwt-cpp::jwt-cpp
+        # PUBLIC picojson
+        PUBLIC OpenSSL::SSL
+        PUBLIC OpenSSL::Crypto
 )
 
 # 依赖的一些相关路径

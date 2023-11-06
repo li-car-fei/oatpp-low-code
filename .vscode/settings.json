@@ -1,6 +1,8 @@
 {
     "cmake.configureSettings": {
-        "CMAKE_TOOLCHAIN_FILE": "E:/ljh/software/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "E:/ljh/software/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "DOPENSSL_INCLUDE_DIRS": "E:/ljh/software/vcpkg/installed/x86-windows-static/include",
+        "-DOPENSSL_LIBRARY_DIRS": "E:/ljh/software/vcpkg/installed/x86-windows-static/lib",
     },
     "cmake.configureOnOpen": true,
     "files.associations": {
@@ -80,6 +82,8 @@
         "iostream": "cpp",
         "queue": "cpp",
         "*.tcc": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "codecvt": "cpp",
+        "shared_mutex": "cpp"
     }
 }

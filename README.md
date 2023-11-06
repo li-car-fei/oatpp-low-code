@@ -214,6 +214,14 @@ ENDPOINT("POST", "/upload", upload, REQUEST(std::shared_ptr<IncomingRequest>, re
 }
 ```
 
+### Interceptor Auth 鉴权
+
+JWT 模式，对 header 中的 json web token （userId_ ）进行加解密确认；
+
+AuthController 中配置哪些接口不需要鉴权，其余的接口都要增加 JWT 的 Header 参数设置；
+
+请求接口接收后需要 Interceptor 模式进行加解密确认；
+
 
 ### 接口示例
 

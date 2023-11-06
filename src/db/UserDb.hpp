@@ -56,6 +56,12 @@ public:
         "DELETE FROM AppUser WHERE id=:id;",
         PARAM(oatpp::Int32, id))
 
+  QUERY(authenticateUser,
+        "SELECT id FROM AppUser WHERE username=:username AND password=crypt(:password, pswhash);",
+        PREPARE(true), // prepared statement!
+        PARAM(oatpp::String, username),
+        PARAM(oatpp::String, password))
+
 };
 
 #include OATPP_CODEGEN_END(DbClient) //<- End Codegen

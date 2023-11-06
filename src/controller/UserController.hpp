@@ -73,6 +73,7 @@ public:
     info->pathParams["userId"].description = "User Identifier";
   }
   ENDPOINT("PUT", "users/{userId}", putUser,
+           BUNDLE(String, userId_),
            PATH(Int32, userId),
            BODY_DTO(Object<UserDto>, userDto))
   {
@@ -91,6 +92,7 @@ public:
     info->pathParams["userId"].description = "User Identifier";
   }
   ENDPOINT("GET", "users/{userId}", getUserById,
+           BUNDLE(String, userId_),
            PATH(Int32, userId))
   {
     return createDtoResponse(Status::CODE_200, m_userService.getUserById(userId));
@@ -104,6 +106,7 @@ public:
     info->addResponse<Object<StatusDto>>(Status::CODE_500, "application/json");
   }
   ENDPOINT("GET", "users/offset/{offset}/limit/{limit}", getUsers,
+           BUNDLE(String, userId_),
            PATH(UInt32, offset),
            PATH(UInt32, limit))
   {
@@ -118,7 +121,8 @@ public:
     info->addResponse<oatpp::Object<UsersAllDataDto>>(Status::CODE_200, "application/json");
     info->addResponse<Object<StatusDto>>(Status::CODE_500, "application/json");
   }
-  ENDPOINT("GET", "usersAll", getAllUsers)
+  ENDPOINT("GET", "usersAll", getAllUsers, 
+           BUNDLE(String, userId_))
   {
     return createDtoResponse(Status::CODE_200, m_userService.getAllUsersNolimit());
   }
@@ -133,6 +137,7 @@ public:
     info->pathParams["userId"].description = "User Identifier";
   }
   ENDPOINT("DELETE", "users/{userId}", deleteUser,
+           BUNDLE(String, userId_),
            PATH(Int32, userId))
   {
     return createDtoResponse(Status::CODE_200, m_userService.deleteUserById(userId));

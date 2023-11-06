@@ -1,4 +1,7 @@
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE AppUser (
     id          INTEGER PRIMARY KEY,
     username    VARCHAR UNIQUE,
@@ -8,7 +11,7 @@ CREATE TABLE AppUser (
 );
 
 INSERT INTO AppUser
-(username, email, password, role) VALUES ('admin', 'admin@domain.com', 'admin', 'ROLE_ADMIN');
+(id, username, email, password, role) VALUES ('4bb48865-1a84-49c7-94eb-148ed2f9d7a5', 'admin', 'admin@domain.com', crypt('admin', gen_salt('bf', 8)), 'ROLE_ADMIN');
 
 
 CREATE TABLE Project (

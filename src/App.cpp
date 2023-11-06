@@ -27,7 +27,6 @@ void run() {
   /* 数据表相关的 Controller */
   /* 需要将 components.databaseComponent.m_database 传到MyController的新建，进一步传到 Service的新建 */
   MyController::createShared(components.databaseComponent.m_database)->setRouter(docEndpoints, router);
-  /* docEndpoints.append(router->addController(UserController::createShared(components.databaseComponent.m_database))->getEndpoints()); */
 
   /* 将 Controller 中的路由信息，添加到 swagger 中 */
   router->addController(oatpp::swagger::Controller::createShared(docEndpoints));

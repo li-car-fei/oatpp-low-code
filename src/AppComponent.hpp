@@ -6,6 +6,9 @@
 
 #include "ErrorHandler.hpp"
 
+#include "oatpp/web/server/interceptor/AllowCorsGlobal.hpp"
+#include "interceptor/AuthInterceptor.hpp"
+
 #include "oatpp/web/server/HttpConnectionHandler.hpp"
 #include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/network/tcp/server/ConnectionProvider.hpp"
@@ -48,6 +51,14 @@ public:
    */
   DatabaseComponent databaseComponent;
 
+
+  /**
+   * 构建 JWT鉴权 所需的 JWT 对象
+  */
+  OATPP_CREATE_COMPONENT(std::shared_ptr<JWT>, jwt)([]{
+    return std::make_shared<JWT>("<my-secret>", "<my-issuer>");
+  }());
+
   /**
    *  构建 handler 中需要使用的 Data-transfer-object 序列化器
    */
@@ -76,6 +87,7 @@ public:
    */
   OATPP_CREATE_COMPONENT(std::shared_ptr<oatpp::network::ConnectionHandler>, serverConnectionHandler)([] {
 
+    OATPP_COMPONENT(std::shared_ptr<JWT>, jwt); // get JWT component
     OATPP_COMPONENT(std::shared_ptr<oatpp::web::server::HttpRouter>, router); // get Router component
     OATPP_COMPONENT(std::shared_ptr<oatpp::data::mapping::ObjectMapper>, objectMapper); // get ObjectMapper component
 
@@ -86,6 +98,13 @@ public:
      * 当 service 中的 assert 判断出现错误时，用 ErrorHandler 中的逻辑进行返回
     */
     connectionHandler->setErrorHandler(std::make_shared<ErrorHandler>(objectMapper));
+
+    /**
+     *  设置全局鉴权拦截器
+    */
+    connectionHandler->addRequestInterceptor(std::make_shared<oatpp::web::server::interceptor::AllowOptionsGlobal>());
+    connectionHandler->addRequestInterceptor(std::make_shared<AuthInterceptor>(jwt));
+
     return connectionHandler;
 
   }());

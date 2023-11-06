@@ -1,10 +1,13 @@
 #ifndef MyController_hpp
 #define MyController_hpp
 
+#include "auth/JWT.hpp"
+
 #include "oatpp/web/server/HttpRouter.hpp"
 #include "oatpp/network/Server.hpp"
 
 #include "db/Db.hpp"
+#include "AuthController.hpp"
 #include "UserController.hpp"
 #include "ProjectController.hpp"
 #include "ComponentController.hpp"
@@ -19,7 +22,8 @@
 class MyController {
   public:
   /* 构造函数 ： 一个database对象构建所有 Controller */
-    MyController(std::shared_ptr<Db> database) : 
+    MyController(std::shared_ptr<Db> database, std::shared_ptr<JWT> jwt) :
+      authController(AuthController::createShared(database, jwt)), 
       userController(UserController::createShared(database)),
       projectController(ProjectController::createShared(database)),
       componentController(ComponentController::createShared(database)),
@@ -30,9 +34,10 @@ class MyController {
 
   /* 静态函数，MyController 只需要一个实例即可 */
     static std::shared_ptr<MyController> createShared(
-      std::shared_ptr<Db> database)
+      std::shared_ptr<Db> database,
+      OATPP_COMPONENT(std::shared_ptr<JWT>, jwt))
     {
-      return std::make_shared<MyController>(database);
+      return std::make_shared<MyController>(database, jwt);
     }
 
   /* 通过 MyController 完成 所有 子Controller 的路由配置 */
@@ -40,6 +45,7 @@ class MyController {
     oatpp::web::server::api::Endpoints& docEndpoints,
     std::shared_ptr<oatpp::web::server::HttpRouter> router)
   {
+    docEndpoints.append(router->addController(authController)->getEndpoints());
     docEndpoints.append(router->addController(userController)->getEndpoints());
     docEndpoints.append(router->addController(projectController)->getEndpoints());
     docEndpoints.append(router->addController(componentController)->getEndpoints());
@@ -49,6 +55,7 @@ class MyController {
 
 
   /* 所有的 Controller */
+    std::shared_ptr<AuthController> authController;
     std::shared_ptr<UserController> userController;
     std::shared_ptr<ProjectController> projectController;
     std::shared_ptr<ComponentController> componentController;
